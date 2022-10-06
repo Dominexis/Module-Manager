@@ -35,4 +35,8 @@ minimum_difficulty=easy
 This is the name of the old module which you wish to update.
 Updating a module means changing the version number in the version verification system, login message, etc.
 
-old_module_name=Blank Module - By Dominexis - 1.0.0
+old_module_name=Blank Module DP - By Dominexis - 1.0.0
+
+This boolean determines if the module folder will be renamed.
+
+rename_module=true

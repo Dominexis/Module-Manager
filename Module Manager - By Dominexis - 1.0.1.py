@@ -7,6 +7,7 @@ import datetime
 
 # Initialize variables
 path = os.path.dirname(os.path.realpath(__file__))
+module_manager_version = "1.0.1"
 
 class parameter_kind:
     def __init__(self, name, kind, value):
@@ -22,7 +23,8 @@ parameters = [
     parameter_kind("Dom's Nexus Version", "version", "1.10.2"),
     parameter_kind("Internal ID", "internal", "blank_module"),
     parameter_kind("Namespace", "internal", "blank"),
-    parameter_kind("Old Module Name", "file", "Blank Module - By Dominexis - 1.0.0"),
+    parameter_kind("Old Module Name", "file", "Blank Module DP - By Dominexis - 1.0.0"),
+    parameter_kind("Rename Module", "boolean", "true"),
 
     parameter_kind("Feature Time Manager", "boolean", "true"),
     parameter_kind("Feature Player NBT", "boolean", "false"),
@@ -143,7 +145,7 @@ while True:
     # Display main menu
     clear()
     print(
-        "\n Module Manager - For Dom's Nexus\n By Dominexis - 1.0.0\n" +
+        "\n Module Manager - For Dom's Nexus\n By Dominexis - " + module_manager_version + "\n" +
         "\n Parameters:"
     )
     for i in range(len(parameters)):
@@ -166,7 +168,7 @@ while True:
                 # Display parameters menu
                 clear()
                 print(
-                    "\n Module Manager - For Dom's Nexus\n By Dominexis - 1.0.0\n" +
+                    "\n Module Manager - For Dom's Nexus\n By Dominexis - " + module_manager_version + "\n" +
                     "\n Edit parameter:" +
                     "\n  0) Go back"
                 )
@@ -251,7 +253,7 @@ while True:
             namespace = parameter_values[parameter_ids.index("namespace")]
 
             # Compile pack name
-            pack_name = module_name + " - By " + author + " - " + version
+            pack_name = module_name + " DP - By " + author + " - " + version
 
             # Check if the module already exists
             if os.path.exists(os.path.join(path, pack_name)):
@@ -512,9 +514,10 @@ while True:
             internal_id = parameter_values[parameter_ids.index("internal_id")]
             namespace = parameter_values[parameter_ids.index("namespace")]
             old_module_name = parameter_values[parameter_ids.index("old_module_name")]
+            rename_module = parameter_values[parameter_ids.index("rename_module")]
 
             # Compile pack name
-            pack_name = module_name + " - By " + author + " - " + version
+            pack_name = module_name + " DP - By " + author + " - " + version
 
             # Check that module name is in old module name
             if module_name not in old_module_name:
@@ -628,7 +631,8 @@ while True:
 
                                 # Rename folders
                                 os.rename(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_")), os.path.join(path, old_module_name, "data", namespace, "functions", "verify", version.replace(".", "_")))
-                                os.rename(os.path.join(path, old_module_name), os.path.join(path, pack_name))
+                                if rename_module == "true":
+                                    os.rename(os.path.join(path, old_module_name), os.path.join(path, pack_name))
 
                                 # Set message
                                 message += " Module updated.\n"
