@@ -2,12 +2,13 @@
 import os
 import shutil
 import datetime
+from xml import dom
 
 
 
 # Initialize variables
 path = os.path.dirname(os.path.realpath(__file__))
-module_manager_version = "1.0.1"
+module_manager_version = "1.0.2"
 
 class parameter_kind:
     def __init__(self, name, kind, value):
@@ -519,123 +520,119 @@ while True:
             # Compile pack name
             pack_name = module_name + " DP - By " + author + " - " + version
 
-            # Check that module name is in old module name
-            if module_name not in old_module_name:
-                message += " Error: Old and current module names do not match!\n"
+            # Check if the module already exists
+            if not os.path.exists(os.path.join(path, old_module_name)):
+                message += " Error: \"" + old_module_name + "\" doesn't exist!\n"
             else:
-                # Check if the module already exists
-                if not os.path.exists(os.path.join(path, old_module_name)):
-                    message += " Error: \"" + old_module_name + "\" doesn't exist!\n"
+                # Get the old version ID from the version verification system
+                if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "verify")):
+                    message += " Error: Version verification system does not exist!\n"
                 else:
-                    # Get the old version ID from the version verification system
-                    if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "verify")):
+                    directory_list = os.listdir(os.path.join(path, old_module_name, "data", namespace, "functions", "verify"))
+                    if len(directory_list) == 0:
                         message += " Error: Version verification system does not exist!\n"
                     else:
-                        directory_list = os.listdir(os.path.join(path, old_module_name, "data", namespace, "functions", "verify"))
-                        if len(directory_list) == 0:
-                            message += " Error: Version verification system does not exist!\n"
+                        old_version = directory_list[-1].replace("_", ".")
+
+                        # Get old Nexus support version
+                        if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "check.mcfunction")):
+                            message += " Error: Check function does not exist!\n"
                         else:
-                            old_version = directory_list[-1].replace("_", ".")
+                            with open(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "check.mcfunction"), "r", encoding="utf-8") as file:
+                                contents = file.read()
+                            major_index = contents.index("scoreboard players set #expected_major nexus.value ") + 51
+                            minor_index = contents.index("scoreboard players set #expected_minor nexus.value ") + 51
+                            patch_index = contents.index("scoreboard players set #expected_patch nexus.value ") + 51
+                            old_doms_nexus_version = contents[major_index: contents.index("\n", major_index)] + "." + contents[minor_index: contents.index("\n", minor_index)] + "." + contents[patch_index: contents.index("\n", patch_index)]
 
-                            # Get old Nexus support version
-                            if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "check.mcfunction")):
-                                message += " Error: Check function does not exist!\n"
+                            # Modify version verification system
+                            with open(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "check.mcfunction"), "w", encoding="utf-8") as file:
+                                file.write(
+                                    contents[0: major_index] + 
+                                    doms_nexus_version.split(".")[0] + contents[contents.index("\n", major_index): minor_index] +
+                                    doms_nexus_version.split(".")[1] + contents[contents.index("\n", minor_index): patch_index] +
+                                    doms_nexus_version.split(".")[2] + contents[contents.index("\n", patch_index):]
+                                )
+
+                            if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "version.mcfunction")):
+                                message += " Error: Version function does not exist!\n"
                             else:
-                                with open(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "check.mcfunction"), "r", encoding="utf-8") as file:
+                                with open(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "version.mcfunction"), "r", encoding="utf-8") as file:
                                     contents = file.read()
-                                major_index = contents.index("scoreboard players set #expected_major nexus.value ") + 51
-                                minor_index = contents.index("scoreboard players set #expected_minor nexus.value ") + 51
-                                patch_index = contents.index("scoreboard players set #expected_patch nexus.value ") + 51
-                                old_doms_nexus_version = contents[major_index: contents.index("\n", major_index)] + "." + contents[minor_index: contents.index("\n", minor_index)] + "." + contents[patch_index: contents.index("\n", patch_index)]
-
-                                # Modify version verification system
-                                with open(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "check.mcfunction"), "w", encoding="utf-8") as file:
+                                major_index = contents.index("major:") + 6
+                                minor_index = contents.index("minor:") + 6
+                                patch_index = contents.index("patch:") + 6
+                                with open(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "version.mcfunction"), "w", encoding="utf-8") as file:
                                     file.write(
-                                        contents[0: major_index] + 
-                                        doms_nexus_version.split(".")[0] + contents[contents.index("\n", major_index): minor_index] +
-                                        doms_nexus_version.split(".")[1] + contents[contents.index("\n", minor_index): patch_index] +
-                                        doms_nexus_version.split(".")[2] + contents[contents.index("\n", patch_index):]
+                                        contents[0: major_index] +
+                                        version.split(".")[0] + contents[contents.index(",", major_index): minor_index] +
+                                        version.split(".")[1] + contents[contents.index(",", minor_index): patch_index] +
+                                        version.split(".")[2] + contents[contents.index("}", patch_index):]
                                     )
 
-                                if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "version.mcfunction")):
-                                    message += " Error: Version function does not exist!\n"
-                                else:
-                                    with open(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "version.mcfunction"), "r", encoding="utf-8") as file:
-                                        contents = file.read()
-                                    major_index = contents.index("major:") + 6
-                                    minor_index = contents.index("minor:") + 6
-                                    patch_index = contents.index("patch:") + 6
-                                    with open(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_"), "version.mcfunction"), "w", encoding="utf-8") as file:
-                                        file.write(
-                                            contents[0: major_index] +
-                                            version.split(".")[0] + contents[contents.index(",", major_index): minor_index] +
-                                            version.split(".")[1] + contents[contents.index(",", minor_index): patch_index] +
-                                            version.split(".")[2] + contents[contents.index("}", patch_index):]
-                                        )
+                            # Modify pack.mcmeta
+                            if not os.path.exists(os.path.join(path, old_module_name, "pack.mcmeta")):
+                                message += " Error: \"pack.mcmeta\" does not exist!\n"
+                            else:
+                                with open(os.path.join(path, old_module_name, "pack.mcmeta"), "r", encoding="utf-8") as file:
+                                    contents = file.read()
+                                module_version_index = contents.index(old_version, contents.index(module_name))
+                                doms_nexus_version_index = contents.index(old_doms_nexus_version, contents.index("Dom's Nexus"))
+                                with open(os.path.join(path, old_module_name, "pack.mcmeta"), "w", encoding="utf-8") as file:
+                                    file.write(
+                                        contents[0: module_version_index] + version +
+                                        contents[contents.index("\\n", module_version_index): doms_nexus_version_index] + doms_nexus_version +
+                                        contents[contents.index("+", doms_nexus_version_index):]
+                                    )
 
-                                # Modify pack.mcmeta
-                                if not os.path.exists(os.path.join(path, old_module_name, "pack.mcmeta")):
-                                    message += " Error: \"pack.mcmeta\" does not exist!\n"
-                                else:
-                                    with open(os.path.join(path, old_module_name, "pack.mcmeta"), "r", encoding="utf-8") as file:
-                                        contents = file.read()
-                                    module_version_index = contents.index(old_version, contents.index(module_name))
-                                    doms_nexus_version_index = contents.index(old_doms_nexus_version, contents.index("Dom's Nexus"))
-                                    with open(os.path.join(path, old_module_name, "pack.mcmeta"), "w", encoding="utf-8") as file:
-                                        file.write(
-                                            contents[0: module_version_index] + version +
-                                            contents[contents.index("\\n", module_version_index): doms_nexus_version_index] + doms_nexus_version +
-                                            contents[contents.index("+", doms_nexus_version_index):]
-                                        )
+                            # Modify login message
+                            if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "player", "login", "main.mcfunction")):
+                                message += " Error: Login system does not exists!\n"
+                            else:
+                                with open(os.path.join(path, old_module_name, "data", namespace, "functions", "player", "login", "main.mcfunction"), "r", encoding="utf-8") as file:
+                                    contents = file.read()
+                                with open(os.path.join(path, old_module_name, "data", namespace, "functions", "player", "login", "main.mcfunction"), "w", encoding="utf-8") as file:
+                                    file.write(contents.replace(old_version, version))
 
-                                # Modify login message
-                                if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "player", "login", "main.mcfunction")):
-                                    message += " Error: Login system does not exists!\n"
-                                else:
-                                    with open(os.path.join(path, old_module_name, "data", namespace, "functions", "player", "login", "main.mcfunction"), "r", encoding="utf-8") as file:
-                                        contents = file.read()
-                                    with open(os.path.join(path, old_module_name, "data", namespace, "functions", "player", "login", "main.mcfunction"), "w", encoding="utf-8") as file:
-                                        file.write(contents.replace(old_version, version))
+                            # Modify verification function tags
+                            if not os.path.exists(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "check.json")):
+                                message += " Error: Check function tag does not exist!\n"
+                            else:
+                                with open(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "check.json"), "r", encoding="utf-8") as file:
+                                    contents = file.read()
+                                with open(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "check.json"), "w", encoding="utf-8") as file:
+                                    file.write(contents.replace(old_version.replace(".", "_"), version.replace(".", "_")))
 
-                                # Modify verification function tags
-                                if not os.path.exists(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "check.json")):
-                                    message += " Error: Check function tag does not exist!\n"
-                                else:
-                                    with open(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "check.json"), "r", encoding="utf-8") as file:
-                                        contents = file.read()
-                                    with open(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "check.json"), "w", encoding="utf-8") as file:
-                                        file.write(contents.replace(old_version.replace(".", "_"), version.replace(".", "_")))
+                            if not os.path.exists(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "version.json")):
+                                message += " Error: Version function tag does not exist!\n"
+                            else:
+                                with open(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "version.json"), "r", encoding="utf-8") as file:
+                                    contents = file.read()
+                                with open(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "version.json"), "w", encoding="utf-8") as file:
+                                    file.write(contents.replace(old_version.replace(".", "_"), version.replace(".", "_")))
 
-                                if not os.path.exists(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "version.json")):
-                                    message += " Error: Version function tag does not exist!\n"
-                                else:
-                                    with open(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "version.json"), "r", encoding="utf-8") as file:
-                                        contents = file.read()
-                                    with open(os.path.join(path, old_module_name, "data", "nexus", "tags", "functions", "verify", "version.json"), "w", encoding="utf-8") as file:
-                                        file.write(contents.replace(old_version.replace(".", "_"), version.replace(".", "_")))
+                            # Update last modified value
+                            if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "setup", "last_modified.mcfunction")):
+                                message += " Error: Last modified function does not exist!\n"
+                            else:
+                                with open(os.path.join(path, old_module_name, "data", namespace, "functions", "setup", "last_modified.mcfunction"), "r", encoding="utf-8") as file:
+                                    contents = file.read()
+                                time = datetime.datetime.now()
+                                last_modified_index = contents.index("scoreboard players set #last_modified nexus.value ") + 50
+                                with open(os.path.join(path, old_module_name, "data", namespace, "functions", "setup", "last_modified.mcfunction"), "w", encoding="utf-8") as file:
+                                    file.write(
+                                        contents[0: last_modified_index] + 
+                                        str(time.year) + ("0" if time.month < 10 else "") + str(time.month) + ("0" if time.day < 10 else "") + str(time.day) + ("0" if time.hour*4 + time.minute//15 < 10 else "") + str(time.hour*4 + time.minute//15) +
+                                        contents[contents.index("\n", last_modified_index):]
+                                    )
 
-                                # Update last modified value
-                                if not os.path.exists(os.path.join(path, old_module_name, "data", namespace, "functions", "setup", "last_modified.mcfunction")):
-                                    message += " Error: Last modified function does not exist!\n"
-                                else:
-                                    with open(os.path.join(path, old_module_name, "data", namespace, "functions", "setup", "last_modified.mcfunction"), "r", encoding="utf-8") as file:
-                                        contents = file.read()
-                                    time = datetime.datetime.now()
-                                    last_modified_index = contents.index("scoreboard players set #last_modified nexus.value ") + 50
-                                    with open(os.path.join(path, old_module_name, "data", namespace, "functions", "setup", "last_modified.mcfunction"), "w", encoding="utf-8") as file:
-                                        file.write(
-                                            contents[0: last_modified_index] + 
-                                            str(time.year) + ("0" if time.month < 10 else "") + str(time.month) + ("0" if time.day < 10 else "") + str(time.day) + ("0" if time.hour*4 + time.minute//15 < 10 else "") + str(time.hour*4 + time.minute//15) +
-                                            contents[contents.index("\n", last_modified_index):]
-                                        )
+                            # Rename folders
+                            os.rename(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_")), os.path.join(path, old_module_name, "data", namespace, "functions", "verify", version.replace(".", "_")))
+                            if rename_module == "true":
+                                os.rename(os.path.join(path, old_module_name), os.path.join(path, pack_name))
 
-                                # Rename folders
-                                os.rename(os.path.join(path, old_module_name, "data", namespace, "functions", "verify", old_version.replace(".", "_")), os.path.join(path, old_module_name, "data", namespace, "functions", "verify", version.replace(".", "_")))
-                                if rename_module == "true":
-                                    os.rename(os.path.join(path, old_module_name), os.path.join(path, pack_name))
-
-                                # Set message
-                                message += " Module updated.\n"
+                            # Set message
+                            message += " Module updated.\n"
 
         elif action == 5:
             exit()
