@@ -1,0 +1,50 @@
+{
+    "module_info": {
+        "module_name": "Blank Module",
+        "author": "Dominexis",
+        "version": {
+            "major": 1,
+            "minor": 0,
+            "patch": 0
+        },
+        "internal_id": "blank_module",
+        "namespace": "blank",
+        "download_link": ""
+    },
+    "dependencies": [
+        {
+            "module_name": "Dom's Nexus",
+            "version": {
+                "major": 2,
+                "minor": 0,
+                "patch": 0
+            },
+            "internal_id": "doms_nexus",
+            "download_link": "https://github.com/Dominexis/Doms-Nexus/releases"
+        }
+    ],
+    "features": {
+        "time_manager": true,
+        "player_nbt": false,
+        "player_health": true,
+        "player_respawn": true,
+        "player_motion": false,
+        "entity_processing": true,
+        "entity_health": true,
+        "custom_entity_ticking": true,
+        "unconditional_entity_ticking": false,
+        "damage_sensor_ticking": false,
+        "vehicle": false,
+        "event_id_player_hurt_entity": true,
+        "event_id_player_killed_entity": true,
+        "event_id_entity_hurt_player": true,
+        "event_id_entity_killed_player": true,
+        "event_id_player_interacted_with_entity": true,
+        "object_ticking": false,
+        "maximum_entity_time": 45,
+        "maximum_object_time": 45,
+        "minimum_entity_time": 5,
+        "minimum_object_time": 5,
+        "minimum_difficulty": "easy"
+    }
+}
