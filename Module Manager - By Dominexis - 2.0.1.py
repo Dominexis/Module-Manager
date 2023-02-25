@@ -26,12 +26,14 @@ if not (
 # Initialize variables
 
 PROGRAM_PATH = Path(__file__).parent
-MODULE_MANAGER_VERSION = "2.0.0"
+MODULE_MANAGER_VERSION = "2.0.1"
 PACK_FORMAT = 10
 
 class State(Enum):
-    """Enumeration which stores the IDs of the program states.\n
-    Using plain strings to store these sorts of values risks typos breaking the system.\n
+    """Enumeration which stores the IDs of the program states.
+
+    Using plain strings to store these sorts of values risks typos breaking the system.
+
     An enumeration ensures that the values are accurate because the IDE can flag typos."""
 
     MAIN_MENU = "main_menu"
@@ -57,8 +59,10 @@ class State(Enum):
     EXIT = "exit"
 
 class Setting_Category(Enum):
-    """Enumeration which stores the IDs of the setting categories.\n
-    Using plain strings to store these sorts of values risks typos breaking the system.\n
+    """Enumeration which stores the IDs of the setting categories.
+
+    Using plain strings to store these sorts of values risks typos breaking the system.
+
     An enumeration ensures that the values are accurate because the IDE can flag typos."""
 
     MODULE_INFO = "module_info"
@@ -66,8 +70,10 @@ class Setting_Category(Enum):
     FEATURES = "features"
 
 class Module_Setting(Enum):
-    """Enumeration which stores the IDs of the module settings.\n
-    Using plain strings to store these sorts of values risks typos breaking the system.\n
+    """Enumeration which stores the IDs of the module settings.
+
+    Using plain strings to store these sorts of values risks typos breaking the system.
+
     An enumeration ensures that the values are accurate because the IDE can flag typos."""
 
     MODULE_NAME = "module_name"
@@ -78,8 +84,10 @@ class Module_Setting(Enum):
     DOWNLOAD_LINK = "download_link"
 
 class Feature(Enum):
-    """Enumeration which stores the IDs of the features in the feature list.\n
-    Using plain strings to store these sorts of values risks typos breaking the system.\n
+    """Enumeration which stores the IDs of the features in the feature list.
+
+    Using plain strings to store these sorts of values risks typos breaking the system.
+
     An enumeration ensures that the values are accurate because the IDE can flag typos."""
 
     TIME_MANAGER = "time_manager"
@@ -106,8 +114,10 @@ class Feature(Enum):
     MINIMUM_DIFFICULTY = "minimum_difficulty"
 
 class Setting_Kind(Enum):
-    """Enumeration which stores the IDs of the setting kinds, that is, their names.\n
-    Using plain strings to store these sorts of values risks typos breaking the system.\n
+    """Enumeration which stores the IDs of the setting kinds, that is, their names.
+
+    Using plain strings to store these sorts of values risks typos breaking the system.
+
     An enumeration ensures that the values are accurate because the IDE can flag typos."""
 
     GENERIC = "generic"
@@ -120,8 +130,10 @@ class Setting_Kind(Enum):
     DIFFICULTY = "difficulty"
 
 class Setting_Template:
-    """The generic class for settings used as a reference by the other setting types.\n
-    It stores the value of the setting in `value`.\n
+    """The generic class for settings used as a reference by the other setting types.
+
+    It stores the value of the setting in `value`.
+
     This can be assigned with `assign()`, and returned in raw form with `export()`."""
 
     name = Setting_Kind.GENERIC
@@ -140,8 +152,10 @@ class Setting_Template:
         return self.value
 
 class Path_Part(Setting_Template):
-    """A path part represents any string which is used in a directory. This includes the name of the module, the author's name, etc.\n
-    It stores the value of the setting in `value`.\n
+    """A path part represents any string which is used in a directory. This includes the name of the module, the author's name, etc.
+
+    It stores the value of the setting in `value`.
+
     This can be assigned with `assign()`, and returned in raw form with `export()`."""
 
     name = Setting_Kind.PATH_PART
@@ -156,8 +170,10 @@ class Path_Part(Setting_Template):
         return ""
 
 class Version(Setting_Template):
-    """Represents a semver version in the format `MAJOR.MINOR.PATCH`.\n
-    It stores the value of the version ID in `major`, `minor`, and `patch` respectively.\n
+    """Represents a semver version in the format `MAJOR.MINOR.PATCH`.
+
+    It stores the value of the version ID in `major`, `minor`, and `patch` respectively.
+
     These can be assigned with `assign()`, and returned in raw form with `export()`."""
 
     name = Setting_Kind.VERSION
@@ -207,8 +223,10 @@ class Version(Setting_Template):
         }
 
 class Internal(Setting_Template):
-    """An internal string is used in directories and file names within data packs. These may only have lowercase letters, numbers, and underscores.\n
-    It stores the value of the setting in `value`.\n
+    """An internal string is used in directories and file names within data packs. These may only have lowercase letters, numbers, and underscores.
+
+    It stores the value of the setting in `value`.
+
     This can be assigned with `assign()`, and returned in raw form with `export()`."""
 
     name = Setting_Kind.INTERNAL
@@ -223,15 +241,19 @@ class Internal(Setting_Template):
         return ""
 
 class Link(Setting_Template):
-    """Used for a module's download link. Can be empty.\n
-    It stores the value of the setting in `value`.\n
+    """Used for a module's download link. Can be empty.
+
+    It stores the value of the setting in `value`.
+
     This can be assigned with `assign()`, and returned in raw form with `export()`."""
 
     name = Setting_Kind.LINK
 
 class Boolean(Setting_Template):
-    """Stores a Boolean. Used in the feature list.\n
-    It stores the value of the setting in `value`.\n
+    """Stores a Boolean. Used in the feature list.
+
+    It stores the value of the setting in `value`.
+
     This can be assigned with `assign()`, and returned in raw form with `export()`."""
 
     name = Setting_Kind.BOOLEAN
@@ -257,8 +279,10 @@ class Boolean(Setting_Template):
         return f" ERROR: {key} Input must be a boolean!\n"
 
 class Time(Setting_Template):
-    """Stores an integer which represents the number of ticks allotted to a specific task by the Nexus. Used in the feature list.\n
-    It stores the value of the setting in `value`.\n
+    """Stores an integer which represents the number of ticks allotted to a specific task by the Nexus. Used in the feature list.
+
+    It stores the value of the setting in `value`.
+
     This can be assigned with `assign()`, and returned in raw form with `export()`."""
 
     name = Setting_Kind.TIME
@@ -279,8 +303,10 @@ class Time(Setting_Template):
         return f" ERROR: {key}: Input must be a number!\n"
 
 class Difficulty(Setting_Template):
-    """Stores a string representing a difficulty mode. Can be `peaceful`, `easy`, `normal`, or `hard`.\n
-    It stores the value of the setting in `value`.\n
+    """Stores a string representing a difficulty mode. Can be `peaceful`, `easy`, `normal`, or `hard`.
+
+    It stores the value of the setting in `value`.
+
     This can be assigned with `assign()`, and returned in raw form with `export()`."""
 
     name = Setting_Kind.DIFFICULTY
@@ -303,7 +329,8 @@ class Difficulty(Setting_Template):
 
 
 class Program:
-    """The main class which runs the program.\n
+    """The main class which runs the program.
+
     Most of the program is handled by a single class so that object variables
     can be accessed by the wide array of functions without having to make global variable calls."""
 
@@ -316,18 +343,18 @@ class Program:
         "update_settings"
     )
 
-    # State of the program
     state: State
-    # Settings, stores everything configurable about the program
+    """State of the program."""
     settings: dict[str, dict[str, Setting_Template] | list[dict[str, Setting_Template]]]
-    # Message to display on the terminal
+    """Settings, stores everything configurable about the program."""
     message: str
-    # Which dependency is currently being edited
+    """Message to display on the terminal."""
     dependency_index: int
-    # Which module is selected for updating
+    """Which dependency is currently being edited."""
     update_target: Path
-    # Determines whether the settings were accessed from the update module menu or normally
+    """Which module is selected for updating."""
     update_settings: bool
+    """Determines whether the settings were accessed from the update module menu or normally."""
 
     def __init__(self):
         STATE_HANDLER = {
@@ -434,7 +461,7 @@ class Program:
         internal_id = module_info[Module_Setting.INTERNAL_ID.value]
         namespace = module_info[Module_Setting.NAMESPACE.value]
         download_link = module_info[Module_Setting.DOWNLOAD_LINK.value]
-        module_path = PROGRAM_PATH / f'{module_name} - By {author} - {version}'
+        module_path = PROGRAM_PATH / f'{module_name} DP - By {author} - {version}'
         dependencies: list[dict[str, Setting_Template]] = self.settings[Setting_Category.DEPENDENCIES.value]
         features: dict[str, Setting_Template] = self.settings[Setting_Category.FEATURES.value]
 
@@ -584,7 +611,7 @@ class Program:
         version: Version = module_info[Module_Setting.VERSION.value]
 
         # Rename module
-        module_path = PROGRAM_PATH / f'{module_name} - By {author} - {version}'
+        module_path = PROGRAM_PATH / f'{module_name} DP - By {author} - {version}'
         os.rename(self.update_target, module_path)
         self.update_target = module_path
 
@@ -896,7 +923,7 @@ class Program:
         dependencies: int = len(self.settings[Setting_Category.DEPENDENCIES.value])
 
         print_lines(
-            f' Name: {module_name} - By {author} - {version}',
+            f' Name: {module_name} DP - By {author} - {version}',
             f' Internal ID: {internal_id}',
             f' Namespace: {namespace}',
             f' Download link: {download_link}',
@@ -905,7 +932,8 @@ class Program:
         )
 
     def open_json(self, file_path: Path) -> tuple[dict[str, dict[str, str]], bool]:
-        """Safely opens up JSON files and returns an error if it is formatted incorrectly.\n
+        """Safely opens up JSON files and returns an error if it is formatted incorrectly.
+
         The built-in JSON library doesn't handle certain encoding schemes properly,
         so this function is used to ensure the correct encoding is used."""
         if not file_path.exists():
