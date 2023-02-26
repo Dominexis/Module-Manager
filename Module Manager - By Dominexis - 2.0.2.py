@@ -26,7 +26,7 @@ if not (
 # Initialize variables
 
 PROGRAM_PATH = Path(__file__).parent
-MODULE_MANAGER_VERSION = "2.0.1"
+MODULE_MANAGER_VERSION = "2.0.2"
 PACK_FORMAT = 10
 
 class State(Enum):
@@ -1267,7 +1267,9 @@ class Program:
                 'function #nexus:verify/check',
                 '\n'*6,
                 '# Setup Nexus', '',
-                'execute if score #doms_nexus_error_boolean nexus.value matches 1 run tellraw @a ["",{"text":"[","color":"gray"},{"text":"Dom\'s Nexus","color":"blue"},{"text":"]","color":"gray"}," ",{"text":"Nexus and modules were unable to install.","color":"red"}]',
+                'execute if score #doms_nexus_error_boolean nexus.value matches 1 run tellraw @a ["",{"text":"[","color":"red"},{"text":"Dom\'s Nexus","color":"blue"},{"text":"]","color":"red"}," ",{"text":"Nexus and modules were unable to install.","color":"red"}]',
+                'execute if score #doms_nexus_error_boolean nexus.value matches 1 run schedule function nexus:verify/main 3s replace',
+                'execute if score #doms_nexus_error_boolean nexus.value matches 0 run schedule clear nexus:verify/main',
                 'execute if score #doms_nexus_error_boolean nexus.value matches 0 run function nexus:setup/main'
             ]
         )
@@ -1286,7 +1288,7 @@ class Program:
         contents: list[str] = []
         module_download = ""
         if download_link.value != "":
-            module_download = f',"underlined":true,"hoverEvent":{{"action":"show_text","value":[{{"text":"{module_name}","color":"gold"}},{{"text":" download","color":"gray"}}]}},"clickEvent":{{"action":"open_url","value":"{download_link}"}}'
+            module_download = f'," ",{{"text":"Click here to download.","color":"red","underlined":true,"hoverEvent":{{"action":"show_text","value":[{{"text":"{module_name}","color":"gold"}},{{"text":" download","color":"gray"}}]}},"clickEvent":{{"action":"open_url","value":"{download_link}"}}}}'
         for dependency in dependencies:
             dependency_name = dependency[Module_Setting.MODULE_NAME.value].value
             dependency_version: Version = dependency[Module_Setting.VERSION.value]
@@ -1298,7 +1300,7 @@ class Program:
                 dependency_color = "blue"
             dependency_download = ""
             if dependency_download_link != "":
-                dependency_download = f',"underlined":true,"hoverEvent":{{"action":"show_text","value":[{{"text":"{dependency_name}","color":"{dependency_color}"}},{{"text":" download","color":"gray"}}]}},"clickEvent":{{"action":"open_url","value":"{dependency_download_link}"}}'
+                dependency_download = f'," ",{{"text":"Click here to download.","color":"red","underlined":true,"hoverEvent":{{"action":"show_text","value":[{{"text":"{dependency_name}","color":"{dependency_color}"}},{{"text":" download","color":"gray"}}]}},"clickEvent":{{"action":"open_url","value":"{dependency_download_link}"}}}}'
 
             contents.extend(
                 [
@@ -1306,8 +1308,8 @@ class Program:
                     '',
                     f'execute store result score #module_count nexus.value if data storage nexus:data modules[{{id:"{dependency_internal_id}"}}]',
                     'execute unless score #module_count nexus.value matches 1 run scoreboard players set #doms_nexus_error_boolean nexus.value 1',
-                    f'execute if score #module_count nexus.value matches 000 run tellraw @a ["",{{"text":"[","color":"gray"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"gray"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"{dependency_download}}},{{"text":" is not installed.","color":"red"}}]',
-                    f'execute if score #module_count nexus.value matches 2.. run tellraw @a ["",{{"text":"[","color":"gray"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"gray"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"Multiple copies of ","color":"red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}},{{"text":" exist. Remove all outdated versions.","color":"red"}}]',
+                    f'execute if score #module_count nexus.value matches 000 run tellraw @a ["",{{"text":"[","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"red"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}},{{"text":" is not installed.","color":"red"}}{dependency_download}]',
+                    f'execute if score #module_count nexus.value matches 2.. run tellraw @a ["",{{"text":"[","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"red"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"Multiple copies of ","color":"red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}},{{"text":" exist. Remove all outdated versions.","color":"red"}}]',
                     '',
                     f'scoreboard players set #expected_major nexus.value {dependency_version.major}',
                     f'scoreboard players set #expected_minor nexus.value {dependency_version.minor}',
@@ -1320,13 +1322,13 @@ class Program:
                     f'execute if score #module_count nexus.value matches 1 store result score #installed_minor nexus.value run data get storage nexus:data modules[{{id:"{dependency_internal_id}"}}].version.minor',
                     f'execute if score #module_count nexus.value matches 1 store result score #installed_patch nexus.value run data get storage nexus:data modules[{{id:"{dependency_internal_id}"}}].version.patch',
                     f'execute if score #module_count nexus.value matches 1 unless score #installed_major nexus.value = #expected_major nexus.value run scoreboard players set #doms_nexus_error_boolean nexus.value 1',
-                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value < #expected_major nexus.value run tellraw @a ["",{{"text":"[","color":"gray"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"gray"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"{dependency_download}}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".x.x","color":"gold"}},{{"text":" is too old, update it to the latest version.","color":"red"}}]',
-                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value > #expected_major nexus.value run tellraw @a ["",{{"text":"[","color":"gray"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"gray"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".x.x","color":"gold"}},{{"text":" is too new, update ","color":"red"}},{{"text":"{module_name}","color":"gold"{module_download}}},{{"text":" to the latest version.","color":"red"}}]',
+                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value < #expected_major nexus.value run tellraw @a ["",{{"text":"[","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"red"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".x.x","color":"gold"}},{{"text":" is too old, update it to the latest version.","color":"red"}}{dependency_download}]',
+                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value > #expected_major nexus.value run tellraw @a ["",{{"text":"[","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"red"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".x.x","color":"gold"}},{{"text":" is too new, update ","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":" to the latest version.","color":"red"}}{module_download}]',
                     f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value = #expected_major nexus.value unless score #installed_minor nexus.value = #expected_minor nexus.value run scoreboard players set #doms_nexus_error_boolean nexus.value 1',
-                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value = #expected_major nexus.value if score #installed_minor nexus.value < #expected_minor nexus.value run tellraw @a ["",{{"text":"[","color":"gray"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"gray"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"{dependency_download}}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".","color":"gold"}},{{"score":{{"name":"#installed_minor","objective":"nexus.value"}},"color":"gold"}},{{"text":".x","color":"gold"}},{{"text":" is too old, update it to the latest version.","color":"red"}}]',
-                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value = #expected_major nexus.value if score #installed_minor nexus.value > #expected_minor nexus.value run tellraw @a ["",{{"text":"[","color":"gray"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"gray"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".","color":"gold"}},{{"score":{{"name":"#installed_minor","objective":"nexus.value"}},"color":"gold"}},{{"text":".x","color":"gold"}},{{"text":" is too new, update ","color":"red"}},{{"text":"{module_name}","color":"gold"{module_download}}},{{"text":" to the latest version.","color":"red"}}]',
+                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value = #expected_major nexus.value if score #installed_minor nexus.value < #expected_minor nexus.value run tellraw @a ["",{{"text":"[","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"red"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".","color":"gold"}},{{"score":{{"name":"#installed_minor","objective":"nexus.value"}},"color":"gold"}},{{"text":".x","color":"gold"}},{{"text":" is too old, update it to the latest version.","color":"red"}}{dependency_download}]',
+                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value = #expected_major nexus.value if score #installed_minor nexus.value > #expected_minor nexus.value run tellraw @a ["",{{"text":"[","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"red"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".","color":"gold"}},{{"score":{{"name":"#installed_minor","objective":"nexus.value"}},"color":"gold"}},{{"text":".x","color":"gold"}},{{"text":" is too new, update ","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":" to the latest version.","color":"red"}}{module_download}]',
                     f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value = #expected_major nexus.value if score #installed_minor nexus.value = #expected_minor nexus.value unless score #installed_patch nexus.value >= #expected_patch nexus.value run scoreboard players set #doms_nexus_error_boolean nexus.value 1',
-                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value = #expected_major nexus.value if score #installed_minor nexus.value = #expected_minor nexus.value if score #installed_patch nexus.value < #expected_patch nexus.value run tellraw @a ["",{{"text":"[","color":"gray"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"gray"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"{dependency_download}}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".","color":"gold"}},{{"score":{{"name":"#installed_minor","objective":"nexus.value"}},"color":"gold"}},{{"text":".","color":"gold"}},{{"score":{{"name":"#installed_patch","objective":"nexus.value"}},"color":"gold"}},{{"text":" is too old, update it to the latest version.","color":"red"}}]',
+                    f'execute if score #module_count nexus.value matches 1 if score #installed_major nexus.value = #expected_major nexus.value if score #installed_minor nexus.value = #expected_minor nexus.value if score #installed_patch nexus.value < #expected_patch nexus.value run tellraw @a ["",{{"text":"[","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"red"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"{dependency_name}","color":"{dependency_color}"}}," ",{{"score":{{"name":"#installed_major","objective":"nexus.value"}},"color":"gold"}},{{"text":".","color":"gold"}},{{"score":{{"name":"#installed_minor","objective":"nexus.value"}},"color":"gold"}},{{"text":".","color":"gold"}},{{"score":{{"name":"#installed_patch","objective":"nexus.value"}},"color":"gold"}},{{"text":" is too old, update it to the latest version.","color":"red"}}{dependency_download}]',
                     '\n'*6
                 ]
             )
@@ -1337,7 +1339,7 @@ class Program:
                 '',
                 f'execute store result score #module_count nexus.value if data storage nexus:data modules[{{id:"{internal_id}"}}]',
                 f'execute if score #module_count nexus.value matches 2.. run scoreboard players set #doms_nexus_error_boolean nexus.value 1',
-                f'execute if score #module_count nexus.value matches 2.. run tellraw @a ["",{{"text":"[","color":"gray"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"gray"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"Multiple copies of ","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":" exist. Remove all outdated versions.","color":"red"}}]'
+                f'execute if score #module_count nexus.value matches 2.. run tellraw @a ["",{{"text":"[","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":"]","color":"red"}}," ",{{"text":"Error: ","color":"dark_red"}},{{"text":"Multiple copies of ","color":"red"}},{{"text":"{module_name}","color":"gold"}},{{"text":" exist. Remove all outdated versions.","color":"red"}}]'
             ]
         )
 
